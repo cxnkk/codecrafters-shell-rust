@@ -14,6 +14,12 @@ fn main() {
         match input[0] {
             "exit" => exit(0),
             "echo" => println!("{}", input[1]),
+            "type" => match input[1] {
+                "exit" => println!("exit is a shell builtin"),
+                "echo" => println!("echo is a shell builtin"),
+                "type" => println!("type is a shell builtin"),
+                _ => println!("{}: not found", input[1]),
+            },
             _ => {
                 println!("{}: command not found", trimmed_cmd);
             }
