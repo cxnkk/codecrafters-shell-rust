@@ -92,13 +92,19 @@ fn main() {
                 let path = env::current_dir().expect("Not existing");
                 println!("{}", path.display());
             }
-            Cmd::Cd => {
-                if Path::new(parts[1]).exists() {
-                    set_current_dir(parts[1]).expect("Failed changing directory")
-                } else {
-                    println!("cd: {}: No such file or directory", parts[1])
+            Cmd::Cd => match parts[1] {
+                "~" => {
+                    let home = env::home_dir().expect("No home dir found");
+                    set_current_dir(home).expect("Failed changing directory")
                 }
-            }
+                _ => {
+                    if Path::new(parts[1]).exists() {
+                        set_current_dir(parts[1]).expect("Failed changing directory")
+                    } else {
+                        println!("cd: {}: No such file or directory", parts[1])
+                    }
+                }
+            },
         }
     }
 }
