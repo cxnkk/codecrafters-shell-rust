@@ -51,13 +51,21 @@ fn pars_args(input: &str) -> Vec<String> {
     let mut args = Vec::new();
     let mut current_arg = String::new();
     let mut in_single_quotes = false;
+    let mut in_double_quotes = false;
 
     for c in input.chars() {
         match c {
             '\'' => {
-                in_single_quotes = !in_single_quotes;
+                if in_double_quotes {
+                    current_arg.push(c)
+                } else {
+                    in_single_quotes = !in_single_quotes
+                }
             }
-            ' ' | '\t' if !in_single_quotes => {
+            '"' => {
+                in_double_quotes = !in_double_quotes;
+            }
+            ' ' | '\t' if !in_single_quotes & !in_double_quotes => {
                 if !current_arg.is_empty() {
                     args.push(current_arg);
                     current_arg = String::new();
@@ -89,13 +97,7 @@ fn main() {
         match Cmd::parse(&parts[0]) {
             Cmd::Exit => exit(0),
             Cmd::Echo => {
-                let msg = &mut parts[1..].join(" ");
-                if msg.contains("'") {
-                    msg.retain(|c| c != '\'');
-                    println!("{}", msg)
-                } else {
-                    println!("{}", msg)
-                }
+                println!("{}", &mut parts[1..].join(" "))
             }
             Cmd::Type => match parts[1].as_str() {
                 "exit" | "echo" | "type" | "pwd" | "cd" => {
