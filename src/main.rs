@@ -52,20 +52,36 @@ fn pars_args(input: &str) -> Vec<String> {
     let mut current_arg = String::new();
     let mut in_single_quotes = false;
     let mut in_double_quotes = false;
+    let mut backslash = false;
 
     for c in input.chars() {
         match c {
+            '\\' => {
+                if !in_single_quotes & !in_double_quotes {
+                    backslash = !backslash;
+                } else {
+                    current_arg.push(c);
+                }
+            }
             '\'' => {
                 if in_double_quotes {
                     current_arg.push(c)
+                } else if backslash {
+                    current_arg.push(c);
+                    backslash = !backslash;
                 } else {
                     in_single_quotes = !in_single_quotes
                 }
             }
             '"' => {
-                in_double_quotes = !in_double_quotes;
+                if backslash {
+                    current_arg.push(c);
+                    backslash = !backslash;
+                } else {
+                    in_double_quotes = !in_double_quotes;
+                }
             }
-            ' ' | '\t' if !in_single_quotes & !in_double_quotes => {
+            ' ' | '\t' if !in_single_quotes & !in_double_quotes & !backslash => {
                 if !current_arg.is_empty() {
                     args.push(current_arg);
                     current_arg = String::new();
