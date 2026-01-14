@@ -118,7 +118,7 @@ fn parse_redirection(args: &mut Vec<String>) -> (Option<File>, Option<File>) {
     while i < args.len() {
         let arg = &args[i].clone();
 
-        if arg == ">" || arg == "1>" || arg == "2>" || arg == ">>" || arg == "1>>" {
+        if arg == ">" || arg == "1>" || arg == "2>" || arg == "2>>" || arg == ">>" || arg == "1>>" {
             if i + 1 >= args.len() {
                 break;
             }
@@ -142,6 +142,15 @@ fn parse_redirection(args: &mut Vec<String>) -> (Option<File>, Option<File>) {
                 }
                 "2>" => {
                     let file = File::create(filename).unwrap();
+
+                    stderr_file = Some(file)
+                }
+                "2>>" => {
+                    let file = OpenOptions::new()
+                        .append(true)
+                        .create(true)
+                        .open(filename)
+                        .expect("Cannot open file.");
 
                     stderr_file = Some(file)
                 }
