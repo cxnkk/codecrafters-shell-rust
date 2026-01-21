@@ -76,6 +76,26 @@ fn find_completions(prefix: &str) -> Vec<String> {
     matches
 }
 
+fn find_lcp(matches: &[String]) -> String {
+    if matches.is_empty() {
+        return String::new();
+    }
+
+    let mut prefix = matches[0].clone();
+
+    for c in matches.iter() {
+        while !c.starts_with(&prefix) {
+            if prefix.is_empty() {
+                return String::new();
+            }
+
+            prefix.pop();
+        }
+    }
+
+    prefix
+}
+
 fn main() {
     let mut stdout = io::stdout();
 
@@ -116,6 +136,18 @@ fn main() {
                             tab_press_count = 0;
                         } else if matches.len() > 1 {
                             if tab_press_count == 1 {
+                                let lcp = find_lcp(&matches);
+
+                                if lcp.len() > input_buffer.len() {
+                                    stdout.execute(cursor::MoveToColumn(0)).unwrap();
+                                    stdout.execute(Clear(ClearType::CurrentLine)).unwrap();
+
+                                    input_buffer = lcp;
+                                    cursor_position = input_buffer.len();
+
+                                    print!("$ {input_buffer}");
+                                }
+
                                 print!("\x07");
                                 stdout.flush().unwrap();
                             } else {
