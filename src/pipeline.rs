@@ -37,7 +37,7 @@ pub fn run_pipeline(input: &str) {
                 previous_command_output = Some(child);
             }
             Err(_) => match parts[1].as_str() {
-                "exit" | "echo" | "type" | "pwd" | "cd" => {
+                "exit" | "echo" | "type" | "pwd" | "cd" | "history" => {
                     println!("{} is a shell builtin", parts[1])
                 }
                 _ => {
