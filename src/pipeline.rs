@@ -36,10 +36,15 @@ pub fn run_pipeline(input: &str) {
             Ok(child) => {
                 previous_command_output = Some(child);
             }
-            Err(_) => {
-                println!("{}: command not found", parts[0]);
-                return;
-            }
+            Err(_) => match parts[1].as_str() {
+                "exit" | "echo" | "type" | "pwd" | "cd" => {
+                    println!("{} is a shell builtin", parts[1])
+                }
+                _ => {
+                    println!("{}: command not found", parts[0]);
+                    return;
+                }
+            },
         }
     }
 
