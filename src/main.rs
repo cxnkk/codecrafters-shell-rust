@@ -15,7 +15,8 @@ use crossterm::{
     event::{self, Event, KeyCode, KeyModifiers},
     terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode},
 };
-use std::io::Write;
+use std::fs::File;
+use std::io::{Read, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::process::{Command, Stdio, exit};
@@ -310,6 +311,21 @@ fn main() {
                                                     .rev()
                                                 {
                                                     println!("  {}  {}", i + 1, last_cmd);
+                                                }
+                                            } else {
+                                                match parts[1].as_str() {
+                                                    "-r" => {
+                                                        let mut file =
+                                                            File::open(&parts[2]).unwrap();
+                                                        let mut contents = String::new();
+
+                                                        file.read_to_string(&mut contents).unwrap();
+
+                                                        for cmd in contents.lines() {
+                                                            local_history.push(cmd.to_string());
+                                                        }
+                                                    }
+                                                    _ => todo!(),
                                                 }
                                             }
                                         }
