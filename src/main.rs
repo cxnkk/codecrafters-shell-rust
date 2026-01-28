@@ -1,8 +1,10 @@
+mod arrow_navigaton;
 mod autocompletion;
 mod pipeline;
 mod quoting;
 mod redirection;
 
+use crate::arrow_navigaton::{Direction, move_history};
 use crate::autocompletion::{find_completions, find_lcp};
 use crate::pipeline::run_pipeline;
 use crate::quoting::parse_args;
@@ -60,7 +62,6 @@ fn main() {
         let mut input_buffer = String::new();
         let mut cursor_position = 0;
         let mut tab_press_count = 0;
-        let mut arrow_count = false;
 
         loop {
             if let Event::Key(key) = event::read().unwrap() {
@@ -157,42 +158,20 @@ fn main() {
                             stdout.flush().unwrap();
                         }
                     }
-                    KeyCode::Up => {
-                        if arrow_count {
-                            stdout.execute(cursor::MoveToColumn(0)).unwrap();
-                            stdout.execute(Clear(ClearType::CurrentLine)).unwrap();
-
-                            print!("$ {}", input_buffer);
-                            stdout.flush().unwrap();
-                        }
-
-                        if history_index > 0 {
-                            history_index -= 1;
-
-                            let last_cmd = &local_history[history_index];
-                            print!("{}", last_cmd);
-                            stdout.flush().unwrap();
-
-                            arrow_count = true;
-                        }
-                    }
-                    KeyCode::Down => {
-                        if arrow_count {
-                            stdout.execute(cursor::MoveToColumn(0)).unwrap();
-                            stdout.execute(Clear(ClearType::CurrentLine)).unwrap();
-
-                            print!("$ {}", input_buffer);
-                            stdout.flush().unwrap();
-                        }
-
-                        if history_index > 0 {
-                            history_index += 1;
-
-                            let cmd = &local_history[history_index];
-                            print!("{}", cmd);
-                            stdout.flush().unwrap();
-                        }
-                    }
+                    KeyCode::Up => move_history(
+                        Direction::Up,
+                        &local_history,
+                        &mut input_buffer,
+                        &mut history_index,
+                        &mut stdout,
+                    ),
+                    KeyCode::Down => move_history(
+                        Direction::Down,
+                        &local_history,
+                        &mut input_buffer,
+                        &mut history_index,
+                        &mut stdout,
+                    ),
                     _ => {}
                 }
 
