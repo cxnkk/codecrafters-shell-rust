@@ -28,6 +28,7 @@ enum Cmd {
     Run,
     Pwd,
     Cd,
+    History,
 }
 
 impl Cmd {
@@ -38,6 +39,7 @@ impl Cmd {
             "type" => Cmd::Type,
             "pwd" => Cmd::Pwd,
             "cd" => Cmd::Cd,
+            "history" => Cmd::History,
             _ => Cmd::Run,
         }
     }
@@ -45,6 +47,7 @@ impl Cmd {
 
 fn main() {
     let mut stdout = io::stdout();
+    let mut local_history = Vec::<String>::new();
 
     loop {
         enable_raw_mode().unwrap();
@@ -159,6 +162,7 @@ fn main() {
                     println!();
 
                     let input = input_buffer.trim();
+                    local_history.push(input.to_string());
 
                     if !input.is_empty() {
                         if input.contains('|') {
@@ -273,6 +277,11 @@ fn main() {
                                             }
                                         }
                                     },
+                                    Cmd::History => {
+                                        for (i, cmd) in local_history.iter().enumerate() {
+                                            println!("  {}  {}", i + 1, cmd);
+                                        }
+                                    }
                                 }
                             }
                         }
