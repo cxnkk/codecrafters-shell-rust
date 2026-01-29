@@ -202,7 +202,19 @@ fn main() {
 
                             if !parts.is_empty() {
                                 match Cmd::parse(&parts[0]) {
-                                    Cmd::Exit => exit(0),
+                                    Cmd::Exit => {
+                                        if let Ok(histfile_var) = env::var("HISTFILE") {
+                                            let mut file = OpenOptions::new()
+                                                .write(true)
+                                                .open(histfile_var)
+                                                .unwrap();
+
+                                            for cmd in local_history {
+                                                writeln!(file, "{}", cmd).unwrap();
+                                            }
+                                        }
+                                        exit(0);
+                                    }
                                     Cmd::Echo => {
                                         let mut args = parts[1..].to_vec();
 
@@ -344,7 +356,7 @@ fn main() {
                                                             .unwrap();
 
                                                         for lines in &local_history {
-                                                            let _ = writeln!(file, "{}", lines);
+                                                            writeln!(file, "{}", lines).unwrap();
                                                         }
                                                     }
                                                     "-a" => {
@@ -363,7 +375,7 @@ fn main() {
                                                             iter.next_back().unwrap().to_vec();
 
                                                         for lines in last_element_history {
-                                                            let _ = writeln!(file, "{}", lines);
+                                                            writeln!(file, "{}", lines).unwrap();
                                                         }
                                                     }
                                                     _ => todo!(),
