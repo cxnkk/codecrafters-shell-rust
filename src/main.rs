@@ -55,6 +55,17 @@ fn main() {
     loop {
         enable_raw_mode().unwrap();
 
+        if let Ok(histfile_var) = env::var("HISTFILE") {
+            let mut file = File::open(histfile_var).unwrap();
+            let mut contents = String::new();
+
+            file.read_to_string(&mut contents).unwrap();
+
+            for lines in contents.lines() {
+                local_history.push(lines.to_string());
+            }
+        }
+
         let mut history_index = local_history.len();
 
         print!("$ ");
