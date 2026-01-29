@@ -336,6 +336,25 @@ fn main() {
                                                             let _ = writeln!(file, "{}", lines);
                                                         }
                                                     }
+                                                    "-a" => {
+                                                        let mut file = OpenOptions::new()
+                                                            .append(true)
+                                                            .create(true)
+                                                            .open(&parts[2])
+                                                            .unwrap();
+
+                                                        let mut iter = local_history
+                                                            .split_inclusive(|cmd_block| {
+                                                                cmd_block.contains("history -a")
+                                                            });
+
+                                                        let last_element_history =
+                                                            iter.next_back().unwrap().to_vec();
+
+                                                        for lines in last_element_history {
+                                                            let _ = writeln!(file, "{}", lines);
+                                                        }
+                                                    }
                                                     _ => todo!(),
                                                 }
                                             }
